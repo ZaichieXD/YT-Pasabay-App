@@ -25,6 +25,7 @@ public class FirebaseStorageHandler : MonoBehaviour
 
     bool isExisting;
 
+    // Gets the firebase storage bucket
     void Start()
     {
         DontDestroyOnLoad(this);
@@ -34,7 +35,7 @@ public class FirebaseStorageHandler : MonoBehaviour
         databaseHandler = GameObject.FindGameObjectWithTag("Database").GetComponent<FirebaseDatabaseHandler>();
     }
 
-
+    // Downloads the picture and assigns it to the image
     public void DownloadDataFromStorage(string trackingNumber, RawImage image)
     {
         StorageReference uploadref = storageReference.Child("TrackingNumbers/" + trackingNumber + ".jpg");
@@ -55,6 +56,7 @@ public class FirebaseStorageHandler : MonoBehaviour
         });
     }
 
+    // Uploads the image to the firebase storage
     public void UploadFileInStorage(string trackingNumber)
     {
         StorageReference uploadref = storageReference.Child("TrackingNumbers/" + trackingNumber + ".jpg");
@@ -74,6 +76,7 @@ public class FirebaseStorageHandler : MonoBehaviour
         });
     }
 
+    // File Dialog for uploading pictures
     public void PickImage(int maxSize, RawImage imageButton)
     {
         NativeGallery.Permission permission = NativeGallery.GetImageFromGallery((path) =>

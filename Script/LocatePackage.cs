@@ -39,7 +39,7 @@ public class LocatePackage : MonoBehaviour
         storageHandler = GameObject.FindGameObjectWithTag("Storage").GetComponent<FirebaseStorageHandler>();
         databaseHandler.FindPackageLocator();
     }
-
+    // For tracking the package without an account
     public void TrackPackageUser()
     {
         StartCoroutine(databaseHandler.GetDataForUsers(this.trackingNumberInput.text));
@@ -47,7 +47,7 @@ public class LocatePackage : MonoBehaviour
         {
             recordformTab.SetActive(true);
             trackingInputTab.SetActive(false);
-            
+
         }
     }
 
@@ -68,6 +68,7 @@ public class LocatePackage : MonoBehaviour
         trackingInputTab.SetActive(true);
     }
 
+    // Assigns the values to the form
     public void AssignValues(string shopName, string trackingNumber, string description, string amount, string dateDropped, string status, string currentDA)
     {
         this.shopName.text = shopName;

@@ -29,6 +29,7 @@ public class ProfileNavigation : MonoBehaviour
         profilePicture.sprite = profilePics[int.Parse(databaseContainer.GetComponent<FirebaseDatabaseHandler>().profileId)];
     }
 
+    // Changes the profile picture by the profile id
     public void ChangeImage(string direction)
     {
         if (direction == "forward")

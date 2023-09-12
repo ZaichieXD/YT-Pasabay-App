@@ -11,6 +11,7 @@ public class IAPManager : MonoBehaviour, IStoreListener
     public TMP_Text shippingFeeLabel;
     public TMP_Text totalAmount;
 
+    // Used for google play console account in app purchases
     private static IStoreController m_StoreController;
     private static IExtensionProvider m_ExtensionProvider;
 
@@ -41,6 +42,7 @@ public class IAPManager : MonoBehaviour, IStoreListener
 
     private float time_rate;
     private double totalWeight;
+    private string itemPrice = "0";
 
     public FirebaseDatabaseHandler databaseHandler;
 
@@ -336,6 +338,8 @@ public class IAPManager : MonoBehaviour, IStoreListener
     void Start()
     {
         databaseHandler = GameObject.FindGameObjectWithTag("Database").GetComponent<FirebaseDatabaseHandler>();
+        itemPrice = databaseHandler.totalAmount.ToString();
+        DisplayProducts();
 
         if (m_StoreController == null)
         {
@@ -345,24 +349,25 @@ public class IAPManager : MonoBehaviour, IStoreListener
 
     public void DisplayProductPrice(string productID, string rawPrice)
     {
-        if (IsInitialized())
-        {
-            Product product = m_StoreController.products.WithID(productID);
-            if (product != null && product.availableToPurchase)
-            {
-                Debug.Log(string.Format("{0}", product.metadata.localizedPrice.ToString()));
-            }
-            else
-            {
-                SSTools.ShowMessage("Price Initialization Failed", SSTools.Position.bottom, SSTools.Time.threeSecond);
-            }
-        }
-        else
-        {
-            itemPriceLabel.text = databaseHandler.totalAmount.ToString();
-            shippingFeeLabel.text = rawPrice;
-            totalAmount.text = (int.Parse(rawPrice) + databaseHandler.totalAmount).ToString();
-        }
+        itemPriceLabel.text = itemPrice;
+        shippingFeeLabel.text = rawPrice;
+        totalAmount.text = (int.Parse(rawPrice) + int.Parse(itemPrice)).ToString();
+
+        // if (IsInitialized())
+        // {
+        //     Product product = m_StoreController.products.WithID(productID);
+        //     if (product != null && product.availableToPurchase)
+        //     {
+        //         Debug.Log(string.Format("{0}", product.metadata.localizedPrice.ToString()));
+        //     }
+        //     else
+        //     {
+        //         SSTools.ShowMessage("Price Initialization Failed", SSTools.Position.bottom, SSTools.Time.threeSecond);
+        // }
+        // else
+        // {
+
+        // }
     }
 
     public void BuyWithCash()

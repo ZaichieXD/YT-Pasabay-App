@@ -26,6 +26,7 @@ public class HomeNav : MonoBehaviour
         barButton.SetActive(false);
     }
 
+    // Checks if the touch is outside the bounds if it is close the side bar
     public void HideSideBar()
     {
         if (sideBar.activeInHierarchy == true)

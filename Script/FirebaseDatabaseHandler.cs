@@ -44,7 +44,7 @@ public class FirebaseDatabaseHandler : MonoBehaviour
     string otherDetails;
     string description;
 
-    int clientPhoneNumber;
+    long clientPhoneNumber;
     int length;
     int width;
     int height;
@@ -60,21 +60,25 @@ public class FirebaseDatabaseHandler : MonoBehaviour
         DontDestroyOnLoad(this);
     }
 
+    // Finds an Object with a tag Form Creator
     public void FindFormCreator()
     {
         formCreator = GameObject.FindGameObjectWithTag("Form Creator").GetComponent<FormCreator>();
     }
 
+    // Finds an Object with a tag Package Monitor
     public void FindPackageMonitor()
     {
         packageMonitor = GameObject.FindGameObjectWithTag("Package Monitor").GetComponent<PackageMonitor>();
     }
 
+    // Finds an Object with a tag Package Locator
     public void FindPackageLocator()
     {
         packageLocator = GameObject.FindGameObjectWithTag("Package Locator").GetComponent<LocatePackage>();
     }
 
+    // Finds an Object with a tag Chat Handler
     public void FindChatHandler()
     {
         chatHandler = GameObject.FindGameObjectWithTag("Chat Handler").GetComponent<ChatHandler>();
@@ -216,6 +220,7 @@ public class FirebaseDatabaseHandler : MonoBehaviour
         }
     }
 
+    // Set user privileges in firebase database
     private IEnumerator UpdateUserPrivilegeDatabase(string _user_privilege)
     {
         firebaseAuthHandler.User = firebaseAuthHandler.auth.CurrentUser;
@@ -290,20 +295,22 @@ public class FirebaseDatabaseHandler : MonoBehaviour
             userRole = snapshot.Child("user_privilege").Value.ToString();
             profileId = snapshot.Child("profile_id").Value.ToString();
 
+            // Check if the user privilege is not user or else move to another scene
             if (userRole != "user")
             {
-                firebaseAuthHandler.auth.SignOut();
+                firebaseAuthHandler.auth.SignOut(); // is the above condition is true force logout the user that tried to login
                 accountHandler.popUpWindowLogin.SetActive(true);
                 accountHandler.warningLogInText.text = "Oops you are not an authorized account";
 
             }
             else
             {
-                SceneManager.LoadScene(1);
+                SceneManager.LoadScene(1); // Moves to the seller home page
             }
         }
     }
 
+    // Gets the profile picture id
     public IEnumerator GetProfilePicId()
     {
         // Get the Current Account in Auth
@@ -342,13 +349,28 @@ public class FirebaseDatabaseHandler : MonoBehaviour
             // Load the data
             DataSnapshot snapshot = DBTask.Result;
 
-            profileId = snapshot.Child("profile_id").Value.ToString();
+            profileId = snapshot.Child("profile_id").Value.ToString();// sets the profile id in the profile and display its equivalent
         }
     }
     #endregion
 
     #region UploadForm
-
+    /// <summary>
+    /// This function is responsible for upload of all datas in the database
+    /// </summary>
+    /// <param name="trackingNumber">Unique Id of the Product</param>
+    /// <param name="buyerName">Buyers full name</param>
+    /// <param name="amount">Total Amount of the product</param>
+    /// <param name="status"> Status of the product</param>
+    /// <param name="sellerName">Seller's full name</param>
+    /// <param name="shopName">Shop's name</param>
+    /// <param name="description">Short Description about the product</param>
+    /// <param name="destination">Destination of the product</param>
+    /// <param name="dateAndTime">Date when the order was made</param>
+    /// <param name="eta">Estimated time of arrival</param>
+    /// <param name="currentDa">Current Dropping area it is located</param>
+    /// <param name="otherDetails">Optional</param>
+    /// <param name="payment">Payment Status</param>
     public void UploadFormDataInDatabase(int trackingNumber, string buyerName, int amount, string status, string sellerName,
     string shopName, string description, string destination, string dateAndTime, string eta, string currentDa, string otherDetails,
     string length, string width, string height, string weight, string payment)
@@ -372,7 +394,7 @@ public class FirebaseDatabaseHandler : MonoBehaviour
         StartCoroutine(UploadWeightToDatabase(trackingNumber, weight));
         StartCoroutine(SetCurrentDAInDatabase(trackingNumber.ToString(), currentDa));
         StartCoroutine(SetPackageStatusInDatabase(trackingNumber.ToString(), status));
-        StartCoroutine(SetPackageStatusInDatabase(trackingNumber.ToString(), payment));
+        StartCoroutine(UploadPaymentToDatabase(trackingNumber, payment));
     }
 
     private IEnumerator UploadToUserDatabase(int trackingNumber)
@@ -681,7 +703,7 @@ public class FirebaseDatabaseHandler : MonoBehaviour
     }
 
     /// <summary>
-    /// Generates the Form Data to be approved by the admin
+    /// Generates the Form Data that will be checked by the admin
     /// </summary>
     public void GenerateFormData()
     {
@@ -699,15 +721,16 @@ public class FirebaseDatabaseHandler : MonoBehaviour
 
     }
 
+    // Generates the datas that are needed to be hard coded and calculated by the system
     public IEnumerator UploadFormData()
     {
-        var DBTaskData = DBreference.Child("TrackingNumbers").GetValueAsync();
+        var DBTaskData = DBreference.Child("TrackingNumbers").GetValueAsync(); // Gets a reference from the TrackingNumbers Database
 
-        System.DateTime dateAndTime = System.DateTime.Now;
+        System.DateTime dateAndTime = System.DateTime.Now; // Gets the time and date now
 
-        string convertedDate = dateAndTime.Month + "/" + dateAndTime.Day + "/" + dateAndTime.Year;
+        string convertedDate = dateAndTime.Month + "/" + dateAndTime.Day + "/" + dateAndTime.Year; // Converts it to a string format
 
-        string convertedEtaDate = dateAndTime.AddDays(5).Month + "/" + dateAndTime.AddDays(5).Day + "/" + dateAndTime.AddDays(5).Year;
+        string convertedEtaDate = dateAndTime.AddDays(5).Month + "/" + dateAndTime.AddDays(5).Day + "/" + dateAndTime.AddDays(5).Year; // Adds 5 days from the original date
 
         yield return new WaitUntil(predicate: () => DBTaskData.IsCompleted);
 
@@ -718,9 +741,11 @@ public class FirebaseDatabaseHandler : MonoBehaviour
         }
         else if (DBTaskData.Result.Value == null)
         {
-            int trackingNumberShuffler = UnityEngine.Random.Range(1000000, 9999999);
+            // Tracking Number Generator Logic
+            int trackingNumberShuffler = UnityEngine.Random.Range(1000000, 9999999); // Produce a random number from min to max
 
-            storageHandler.UploadFileInStorage(trackingNumberShuffler.ToString());
+            storageHandler.UploadFileInStorage(trackingNumberShuffler.ToString()); // Uploads the tracking number to the Storage with the picture included if any
+            // Assigns all the data given by the form to the function and uploads to the database
             UploadFormDataInDatabase(trackingNumberShuffler, buyerName, totalAmount, "Pending",
             fullName, shopName, description, address, convertedDate, convertedEtaDate, "YT Pasabay",
             otherDetails, length.ToString(), width.ToString(), height.ToString(), weight.ToString(), "Unpaid");
@@ -730,20 +755,22 @@ public class FirebaseDatabaseHandler : MonoBehaviour
             // Load the data
             DataSnapshot snapshot = DBTaskData.Result;
 
-            int trackingNumberShuffler = UnityEngine.Random.Range(1000000, 9999999);
-
-            if (snapshot.Child(trackingNumberShuffler.ToString()).Exists)
+            int trackingNumberShuffler = UnityEngine.Random.Range(1000000, 9999999); // Produce a random number from min to max
+            // if the tracking number already exists in the database generate a new one
+            while (snapshot.Child(trackingNumberShuffler.ToString()).Exists)
             {
                 trackingNumberShuffler = UnityEngine.Random.Range(1000000, 9999999);
             }
 
-            storageHandler.UploadFileInStorage(trackingNumberShuffler.ToString());
+            storageHandler.UploadFileInStorage(trackingNumberShuffler.ToString()); // Uploads the tracking number to the Storage with the picture included if any
+            // Assigns all the data given by the form to the function and uploads to the database
             UploadFormDataInDatabase(trackingNumberShuffler, buyerName, totalAmount, "Pending",
             fullName, shopName, description, address, convertedDate, convertedEtaDate, "YT Pasabay",
             otherDetails, length.ToString(), width.ToString(), height.ToString(), weight.ToString(), "Unpaid");
         }
     }
 
+    // Gets the form data and assigns it to a User Interface component
     public IEnumerator GetFormData(string status)
     {
         var DBTaskTrackingNumbers = DBreference.Child("users").Child(firebaseAuthHandler.User.UserId).Child("Tracking_Numbers").GetValueAsync();
@@ -787,8 +814,10 @@ public class FirebaseDatabaseHandler : MonoBehaviour
                 {
                     // Load the data
                     DataSnapshot DBTaskDataSnapshot = DBTaskData.Result;
+                    // Gets only the data with the same status
                     if (DBTaskDataSnapshot.Child("Status").Value.ToString() == status)
                     {
+                        // Assigns all values from database to the UI Components
                         packageMonitor.AssignValues(DBTaskDataSnapshot.Child("Shop_Name").Value.ToString(), DBTaskDataSnapshot.Child("Tracking_Number").Value.ToString(), DBTaskDataSnapshot.Child("Description").Value.ToString(), DBTaskDataSnapshot.Child("Amount").Value.ToString(), DBTaskDataSnapshot.Child("Drop_Date").Value.ToString(), DBTaskDataSnapshot.Child("ETA").Value.ToString(), DBTaskDataSnapshot.Child("Buyer_Name").Value.ToString(), DBTaskDataSnapshot.Child("Seller_Name").Value.ToString(), DBTaskDataSnapshot.Child("Destination").Value.ToString(), DBTaskDataSnapshot.Child("Status").Value.ToString(), DBTaskDataSnapshot.Child("Current_DA").Value.ToString(), index);
                         index++;
                     }
@@ -800,6 +829,7 @@ public class FirebaseDatabaseHandler : MonoBehaviour
     #endregion
 
     #region TrackPackage
+    // Get the data even if you have no account in the database but limited only for users that want to track their package
     public IEnumerator GetDataForUsers(string inputTrackingNumber)
     {
         var DBTaskTrackingNumbers = DBreference.Child("TrackingNumbers").Child(inputTrackingNumber).GetValueAsync();
@@ -821,11 +851,12 @@ public class FirebaseDatabaseHandler : MonoBehaviour
         {
             // Load the data
             DataSnapshot snapshot = DBTaskTrackingNumbers.Result;
-
+            // Assigns the values to the form
             packageLocator.AssignValues(snapshot.Child("Shop_Name").Value.ToString(), snapshot.Child("Tracking_Number").Value.ToString(), snapshot.Child("Description").Value.ToString(), snapshot.Child("Amount").Value.ToString(), snapshot.Child("Drop_Date").Value.ToString(), snapshot.Child("Status").Value.ToString(), snapshot.Child("Current_DA").Value.ToString());
         }
     }
 
+    // Gets the data for sellers data is not limited but you need an account
     public IEnumerator GetDataForSellers(string inputTrackingNumber)
     {
         var DBTaskTrackingNumbers = DBreference.Child("TrackingNumbers").Child(inputTrackingNumber).GetValueAsync();
@@ -854,6 +885,7 @@ public class FirebaseDatabaseHandler : MonoBehaviour
 
     #region MessagingSystem
 
+    // Gets a message
     public IEnumerator GetAMessage()
     {
         //userNameText.text = "Admin";
@@ -894,6 +926,45 @@ public class FirebaseDatabaseHandler : MonoBehaviour
         messagesList.Clear();
     }
 
+    // Sends a message and stores it in the database
+    public IEnumerator SendAMessage(string message)
+    {
+        string uniqueKey = DBreference.Child("UserMessages").Child(firebaseAuthHandler.User.UserId).Push().Key; // Generated a unnique key
+        databaseKey = uniqueKey;
+        var DBTask = DBreference.Child("UserMessages").Child(firebaseAuthHandler.User.UserId).Child(uniqueKey).Child("message").SetValueAsync(message);
+
+        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
+
+        if (DBTask.Exception != null)
+        {
+            //Error
+        }
+        else
+        {
+            StartCoroutine(SetSender(firebaseAuthHandler.User.UserId, databaseKey, message)); // Sets the Sender of the message
+        }
+    }
+
+    // Sets the sender of the message and uploads it to the database
+    public IEnumerator SetSender(string userID, string uniqueKey, string message)
+    {
+        var DBTask = DBreference.Child("UserMessages").Child(userID).Child(uniqueKey).Child("sender").SetValueAsync(fullName);
+
+        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
+
+        if (DBTask.Exception != null)
+        {
+            //Error
+        }
+        else
+        {
+
+            chatHandler.WriteMessageListener(message, fullName);
+            //Debug.Log("SetSender");
+        }
+    }
+
+    /// <summary>Deprecated Code</summary>
     /*public void PostMessage()
     {
         DBReferenceN = FirebaseDatabase.DefaultInstance.GetReference("UserMessages/" + firebaseAuthHandler.User.UserId);
@@ -919,41 +990,6 @@ public class FirebaseDatabaseHandler : MonoBehaviour
         //messagesList.Add(args.Snapshot.Child(databaseKey).Value.ToString());
     }*/
 
-    public IEnumerator SendAMessage(string message)
-    {
-        string uniqueKey = DBreference.Child("UserMessages").Child(firebaseAuthHandler.User.UserId).Push().Key;
-        databaseKey = uniqueKey;
-        var DBTask = DBreference.Child("UserMessages").Child(firebaseAuthHandler.User.UserId).Child(uniqueKey).Child("message").SetValueAsync(message);
-
-        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
-
-        if (DBTask.Exception != null)
-        {
-            //Error
-        }
-        else
-        {
-            StartCoroutine(SetSender(firebaseAuthHandler.User.UserId, databaseKey, message));
-        }
-    }
-
-    public IEnumerator SetSender(string userID, string uniqueKey, string message)
-    {
-        var DBTask = DBreference.Child("UserMessages").Child(userID).Child(uniqueKey).Child("sender").SetValueAsync(fullName);
-
-        yield return new WaitUntil(predicate: () => DBTask.IsCompleted);
-
-        if (DBTask.Exception != null)
-        {
-            //Error
-        }
-        else
-        {
-
-            chatHandler.WriteMessageListener(message, fullName);
-            //Debug.Log("SetSender");
-        }
-    }
 
     #endregion
 }

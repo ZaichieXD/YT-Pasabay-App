@@ -27,6 +27,7 @@ public class ChatHandler : MonoBehaviour
         StartCoroutine(databaseHandler.GetAMessage());
     }
 
+    // Writes a message and instantiate a message box
     public void WriteMessage(List<string> message, int numberOfInstance, List<string> sender)
     {
         for (int index = 0; index < numberOfInstance; index++)
@@ -37,6 +38,7 @@ public class ChatHandler : MonoBehaviour
         }
     }
 
+    // Writes a message and instantiate a message box
     public void WriteMessageListener(string message, string sender)
     {
         TMP_Text messageInstance = Instantiate(messagePrefab, contentParent, false);
@@ -57,7 +59,7 @@ public class ChatHandler : MonoBehaviour
         {
             Destroy(child.gameObject);
         }
-        
+
     }
 
     /*void OnDisable()

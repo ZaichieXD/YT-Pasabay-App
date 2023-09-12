@@ -2021,6 +2021,8 @@ MonoBehaviour:
   messagesList: []
   senderList: []
   userNameText: {fileID: 0}
+  totalAmount: 0
+  trackingNumber: 0
 --- !u!1 &322771682
 GameObject:
   m_ObjectHideFlags: 0

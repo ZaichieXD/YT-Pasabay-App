@@ -26,6 +26,7 @@ public class AndroidButtonTracker : MonoBehaviour
         profile = GameObject.FindGameObjectWithTag("Profile").GetComponent<ProfileNavigation>();
     }
 
+    // Checks if your pressed the back button on your phone
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))

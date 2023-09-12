@@ -85,6 +85,7 @@ public class PackageMonitor : MonoBehaviour
         {
             // If there is no data Send Error
             noDataText.gameObject.SetActive(true);
+            formTemplate.SetActive(false);
         }
         else
         {
