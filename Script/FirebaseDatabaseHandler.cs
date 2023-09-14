@@ -32,13 +32,14 @@ public class FirebaseDatabaseHandler : MonoBehaviour
     public string userRole; // User Role from database
     public string profileId; // Profile Id from database
 
-    public List<string> messagesList;
-    public List<string> senderList;
-    private string databaseKey;
-    public DatabaseReference DBReferenceN;
+    public List<string> messagesList; // List of messages
+    public List<string> senderList; // Sender list with the same index as the Message List
+    private string databaseKey; // Child key for database messaging
+    public DatabaseReference DBReferenceN; // Database Reference for Chat Message
 
     public TMP_Text userNameText;
 
+    // Collection of string that will be used by the forms
     string buyerName;
     string address;
     string otherDetails;
@@ -712,7 +713,7 @@ public class FirebaseDatabaseHandler : MonoBehaviour
         otherDetails = formCreator.otherDetails.text;
         description = formCreator.description.text;
 
-        clientPhoneNumber = int.Parse(formCreator.phoneNumber.text);
+        clientPhoneNumber = long.Parse(formCreator.phoneNumber.text);
         length = int.Parse(formCreator.length.text);
         width = int.Parse(formCreator.width.text);
         height = int.Parse(formCreator.height.text);
@@ -757,7 +758,7 @@ public class FirebaseDatabaseHandler : MonoBehaviour
 
             int trackingNumberShuffler = UnityEngine.Random.Range(1000000, 9999999); // Produce a random number from min to max
             // if the tracking number already exists in the database generate a new one
-            while (snapshot.Child(trackingNumberShuffler.ToString()).Exists)
+            if (snapshot.Child(trackingNumberShuffler.ToString()).Exists)
             {
                 trackingNumberShuffler = UnityEngine.Random.Range(1000000, 9999999);
             }

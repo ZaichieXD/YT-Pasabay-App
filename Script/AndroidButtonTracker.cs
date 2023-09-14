@@ -61,10 +61,6 @@ public class AndroidButtonTracker : MonoBehaviour
             }
             else if (SceneManager.GetActiveScene().buildIndex == 6)
             {
-                SceneManager.LoadScene(1);
-            }
-            else if (SceneManager.GetActiveScene().buildIndex == 7)
-            {
                 SceneManager.LoadScene(0);
             }
         }

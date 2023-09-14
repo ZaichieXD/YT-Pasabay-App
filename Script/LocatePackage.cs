@@ -43,7 +43,7 @@ public class LocatePackage : MonoBehaviour
     public void TrackPackageUser()
     {
         StartCoroutine(databaseHandler.GetDataForUsers(this.trackingNumberInput.text));
-        if (noData == true)
+        if (noData == false)
         {
             recordformTab.SetActive(true);
             trackingInputTab.SetActive(false);
